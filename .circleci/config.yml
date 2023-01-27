@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: frontend-build
       - run:
           name: Build front-end
           command: |
@@ -56,7 +56,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: backend-build
       - run:
           name: Back-end build
           command: |
@@ -84,7 +84,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: backend-build
       - run:
         name: Back-end test
         command: |
@@ -280,9 +280,9 @@ workflows:
       - build-frontend
       - build-backend
       - test-frontend:
-          requires: [build-frontend]
+          requires: build-frontend
       - test-backend:
-          requires: [build-backend]
+          requires: build-backend
       # - scan-backend:
       #     requires: [build-backend]
       # - scan-frontend:
