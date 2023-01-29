@@ -132,6 +132,7 @@ jobs:
             npm install
             # npm install oauth-sign@^0.9.0
             npm update
+            npm update mkdirp --depth 2
             npm audit fix --force
             npm audit --audit-level=critical
 
