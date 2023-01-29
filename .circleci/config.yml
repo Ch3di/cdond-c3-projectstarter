@@ -149,7 +149,7 @@ jobs:
       - checkout
       - run:
           name: "install tar and gzip"
-          command: apt install tar gzip -y
+          command: sudo apt install tar gzip -y
       - run:
           name: Ensure back-end infrastructure exists
           command: |
