@@ -131,11 +131,7 @@ jobs:
             cd backend
             npm install
             # npm install oauth-sign@^0.9.0
-            npm update mkdirp --depth 13
-            npm update tmpl --depth 15
-            npm update thenify --depth 5
-            npm update loader-utils --depth 2
-            npm update mixin-deep --depth 20
+            npm update
             npm audit --force
             npm audit --audit-level=critical
 
