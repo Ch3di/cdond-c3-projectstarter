@@ -195,6 +195,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
 
 
       # Here's where you will add some code to rollback on failure      
@@ -338,8 +339,9 @@ workflows:
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires:
+          - deploy-infrastructure
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
