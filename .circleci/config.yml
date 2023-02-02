@@ -210,25 +210,34 @@ jobs:
             ansible-playbook -i ~/inventory.txt configure-server.yml
       - destroy-environment
 
-
-      # Here's where you will add some code to rollback on failure      
-
-#   run-migrations:
-#     docker:
-#       # Docker image here that supports NodeJS
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Run migrations
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Send migration results to memstash
-#           command: |
-#             # Your code here
-#             exit 1
-#      # Here's where you will add some code to rollback on failure      
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - backend-build-cache
+      - run:
+          name: Run migrations
+          command: |
+            # Your code here
+            exit 1
+      - run:
+          name: Run migrations
+          command: |
+              cd backend
+              npm install
+              npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration status to kvdb.io OR memstash.io
+          command: |   
+              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+              then
+                  curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              fi
+              curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}
+     # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
 #     docker:
@@ -355,8 +364,9 @@ workflows:
       - configure-infrastructure:
           requires:
           - deploy-infrastructure
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      - run-migrations:
+          requires:
+            - configure-infrastructure
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
