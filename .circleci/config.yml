@@ -283,7 +283,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-              apt install python3 python3-pip ansible tar gzip curl
+              sudo apt install python3 python3-pip ansible tar gzip curl -y
               curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
               unzip awscli-bundle.zip
               ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
@@ -392,9 +392,9 @@ workflows:
       # - run-migrations:
       #     requires:
       #       - configure-infrastructure
-      - deploy-frontend:
-          requires:
-            - configure-infrastructure
+      # - deploy-frontend:
+      #     requires:
+      #       - configure-infrastructure
       - deploy-backend:
           requires:
             - configure-infrastructure
