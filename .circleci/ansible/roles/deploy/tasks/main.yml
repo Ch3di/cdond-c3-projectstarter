@@ -10,6 +10,7 @@
     upgrade: yes
 
 - name: "install dependencies"
+  become: yes
   apt:
     name: ["nodejs", "npm"]
     state: latest
