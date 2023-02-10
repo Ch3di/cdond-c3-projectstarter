@@ -5,7 +5,7 @@
 
 - name: "Copy files"
   template:
-    src: files/artifact.tar.gz
+    src: ~/project/artifact.tar.gz
     dest: ~/
 
 - name: untar the the artifact
