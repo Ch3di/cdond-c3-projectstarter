@@ -59,7 +59,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/python:3.10-alpine3.16
     steps:
       - checkout
       - restore_cache:
@@ -68,6 +68,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
+            apk add --update --no-cache ansible tar gzip nodejs npm curl aws-cli
             cd backend
             touch .env
             echo ENVIRONMENT=production > ".env"
