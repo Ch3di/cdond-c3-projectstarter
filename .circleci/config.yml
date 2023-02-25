@@ -205,13 +205,12 @@ jobs:
             # unzip awscli-bundle.zip
             # ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
             ls -l
-
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-     - destroy-environment
+      - destroy-environment
 
   run-migrations:
     docker:
