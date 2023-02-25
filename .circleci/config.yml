@@ -68,6 +68,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
+            cd backend
             touch .env
             echo ENVIRONMENT=production > ".env"
             echo TYPEORM_CONNECTION=postgres >> ".env"
@@ -80,7 +81,6 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-            cd backend
             npm install --force
             npm run build
       - save_cache:
