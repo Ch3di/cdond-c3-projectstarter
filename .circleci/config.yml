@@ -69,7 +69,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm install
+            npm install --force
             npm run build
       - save_cache:
           key: backend-build-cache
