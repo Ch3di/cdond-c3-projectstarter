@@ -81,6 +81,9 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - frontend-build-cache
       - run:
           name: Front-end test
           command: |
@@ -143,13 +146,13 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/aws:2023.01
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: "install tar and gzip"
-          command: sudo apt install tar gzip -y
+          command: yum install tar gzip -y
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -157,7 +160,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -177,17 +180,17 @@ jobs:
             cd .circleci/ansible
             pwd
             ls -l
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text >> inventory.txt
-      - destroy-environment
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
       - add_ssh_keys:
@@ -197,10 +200,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible tar gzip curl
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+            apk add --update --no-cache ansible tar gzip aws-cli openssh
+            # curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+            # unzip awscli-bundle.zip
+            # ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
             ls -l
 
       - run:
@@ -208,7 +211,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-    #  - destroy-environment
+     - destroy-environment
 
   run-migrations:
     docker:
@@ -216,7 +219,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: 
+          keys:
             - backend-build-cache
       - run:
           name: Run migrations
@@ -224,6 +227,7 @@ jobs:
               cd backend
               npm install
               npm run migrations > migrations_dump.txt
+              cat migrations_dump.txt
       - run:
           name: show logs when failing
           when: on_fail
@@ -241,7 +245,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
       - attach_workspace:
@@ -249,10 +253,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-              apk add --update ansible tar gzip curl nodejs npm
-              curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-              unzip awscli-bundle.zip
-              ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+              apk add --update ansible tar gzip curl nodejs npm aws-cli
+              # curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+              # unzip awscli-bundle.zip
+              # ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
       - run:
           name: Get backend url
           command: |
@@ -269,11 +273,11 @@ jobs:
               npm run build
               tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
               aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment   
+      - destroy-environment 
                     
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
       - restore_cache:
@@ -286,8 +290,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-              sudo apt update
-              sudo apt install python3 python3-pip ansible tar gzip curl awscli -y
+              apk add --update --no-cache ansible tar gzip nodejs npm curl aws-cli
+              # sudo apt update
+              # sudo apt install python3 python3-pip ansible tar gzip curl awscli -y
 
       - run:
           name: Deploy backend
