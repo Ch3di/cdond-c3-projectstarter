@@ -227,7 +227,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
       - restore_cache:
@@ -236,10 +236,16 @@ jobs:
       - run:
           name: Run migrations
           command: |
+              apk add --update --no-cache nodejs npm curl
               cd backend
               npm install --force
               npm run migrations > migrations_dump.txt
               cat migrations_dump.txt
+      - run:
+          name: show logs when failing
+          when: on_fail
+          command: |
+              cat /home/circleci/.npm/_logs/*-debug.log
       - run:
           name: show logs when failing
           when: on_fail
