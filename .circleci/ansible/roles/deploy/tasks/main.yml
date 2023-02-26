@@ -30,7 +30,8 @@
     state: directory
 
 - name: "Copy files"
-  template:
+  become: yes
+  copy:
     src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend/artifact.tar.gz
 
