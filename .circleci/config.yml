@@ -114,7 +114,7 @@ jobs:
           command: |
             apk add --update --no-cache nodejs npm
             cd backend
-            npm install
+            npm install --force
             npm run test
 
   scan-frontend:
