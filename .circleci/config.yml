@@ -15,6 +15,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
             aws cloudformation delete-stack --stack-name <<parameters.frontend_stack>>
             aws cloudformation delete-stack --stack-name <<parameters.backend_stack>>
 
@@ -413,7 +414,7 @@ jobs:
               --stack-name InitialStack \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
-            echo OldWorkflowID: cat ~/project/OldWorkflowID.txt
+            echo OldWorkflowID: $(cat ~/project/OldWorkflowID.txt)
             echo CurrentWorflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   cleanup:
